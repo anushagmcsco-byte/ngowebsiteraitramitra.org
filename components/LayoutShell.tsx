@@ -755,22 +755,31 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
                       You are correctly logged in as a managing official. Click below to enter the live dynamic administrative boards.
                     </p>
 
-                    <div className="flex gap-2">
-                      <Link
-                        href="/blog"
-                        onClick={() => setShowAdminPortal(false)}
-                        className="cursor-pointer flex-1 py-2.5 text-center bg-stone-950 hover:bg-stone-850 text-white text-xs font-bold font-mono rounded"
-                      >
-                        Open Blog Editor
-                      </Link>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href="/blog"
+                          onClick={() => setShowAdminPortal(false)}
+                          className="cursor-pointer py-2.5 text-center bg-stone-900 hover:bg-stone-850 text-white text-xs font-bold font-mono rounded-xl transition-colors border border-stone-800"
+                        >
+                          Open Blog Editor
+                        </Link>
+                        <Link
+                          href="/gallery"
+                          onClick={() => setShowAdminPortal(false)}
+                          className="cursor-pointer py-2.5 text-center bg-emerald-800 hover:bg-emerald-750 text-white text-xs font-bold font-mono rounded-xl transition-colors border border-emerald-900"
+                        >
+                          Manage Gallery
+                        </Link>
+                      </div>
                       <button
                         onClick={() => {
                           handleAdminLogout();
                           setShowAdminPortal(false);
                         }}
-                        className="cursor-pointer py-2.5 px-4 text-center border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold rounded"
+                        className="cursor-pointer w-full py-2.5 text-center border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold rounded-xl transition-colors"
                       >
-                        Logout
+                        Logout Session
                       </button>
                     </div>
                   </div>
