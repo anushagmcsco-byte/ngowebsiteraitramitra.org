@@ -1,0 +1,6 @@
+{
+  "name": "Raita Mitra Social Trust",
+  "description": "Official website of Raita Mitra Social Trust (R), empowering rural families and building sustainable farming livelihoods in Karnataka.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
