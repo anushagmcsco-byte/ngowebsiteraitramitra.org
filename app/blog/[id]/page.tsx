@@ -181,7 +181,7 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
           {/* Hero Banner Image */}
           <div className="relative h-64 sm:h-96 w-full bg-stone-100 flex items-center justify-center overflow-hidden">
             <Image
-              src={coverAsset}
+              src={coverAsset.src}
               alt={blog.title}
               fill
               priority

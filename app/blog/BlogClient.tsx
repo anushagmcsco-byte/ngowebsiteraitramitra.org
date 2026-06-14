@@ -252,7 +252,7 @@ export default function BlogIndexPage() {
                     {/* Cover Wrap */}
                     <div className="relative h-48 sm:h-52 w-full bg-stone-150">
                       <Image
-                        src={coverImg}
+                        src={coverImg.src}
                         alt={b.title}
                         fill
                         className="object-cover group-hover:scale-101 transition-transform duration-500"
@@ -406,10 +406,17 @@ export default function BlogIndexPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-stone-700 uppercase tracking-wider font-mono">Cover Picture Key</label>
+                    <label className="text-xs font-bold text-stone-700 uppercase tracking-wider font-mono">Cover Picture Source</label>
                     <select
-                      value={formCoverImage}
-                      onChange={(e) => setFormCoverImage(e.target.value)}
+                      value={["soil", "edu", "women", "water", "hero"].includes(formCoverImage) ? formCoverImage : "custom"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "custom") {
+                          setFormCoverImage("https://images.unsplash.com/photo-1592417817098-8f3d6fe1906a?w=800");
+                        } else {
+                          setFormCoverImage(val);
+                        }
+                      }}
                       className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-stone-500/10 focus:outline-hidden font-mono"
                     >
                       <option value="soil">Soil & Crop Diagnostics Workshop (Wheat Fields)</option>
@@ -417,9 +424,24 @@ export default function BlogIndexPage() {
                       <option value="women">Women Self-Help Group microenterprise (Ledgers)</option>
                       <option value="water">Community Rainwater harvesting dam</option>
                       <option value="hero">Karnataka Farmer fields (Lush Green)</option>
+                      <option value="custom">Custom Image URL...</option>
                     </select>
                   </div>
                 </div>
+
+                {!["soil", "edu", "women", "water", "hero"].includes(formCoverImage) && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-stone-700 uppercase tracking-wider font-mono">Custom Image URL</label>
+                    <input
+                      type="url"
+                      required
+                      value={formCoverImage}
+                      onChange={(e) => setFormCoverImage(e.target.value)}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-stone-500/10 focus:outline-hidden font-mono"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-stone-700 uppercase tracking-wider font-mono">Brief Summary</label>

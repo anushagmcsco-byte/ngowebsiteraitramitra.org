@@ -84,6 +84,9 @@ These sustainable micro-enterprises ensure direct, continuous household income. 
 ];
 
 export const getCoverImageAsset = (key: string) => {
+  if (key && (key.startsWith("http://") || key.startsWith("https://") || key.startsWith("/") || key.includes("."))) {
+    return { src: key };
+  }
   switch (key) {
     case "soil":
       return soilImg;

@@ -235,7 +235,7 @@ export default async function HomePage() {
                   <div>
                     <div className="relative h-44 w-full bg-stone-100">
                       <Image
-                        src={coverImg}
+                        src={coverImg.src}
                         alt={b.title}
                         fill
                         className="object-cover"

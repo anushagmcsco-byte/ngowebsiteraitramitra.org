@@ -34,7 +34,9 @@ import {
   Lock,
   LogOut,
   LayoutDashboard,
-  Eye
+  Eye,
+  Play,
+  Video
 } from "lucide-react";
 
 // Image imports from root /src folder
@@ -43,6 +45,8 @@ import eduImg from "../src/assets/images/rural_digital_education_1779872087959.p
 import womenImg from "../src/assets/images/women_empowerment_1779872106993.png";
 import soilImg from "../src/assets/images/soil_workshop_1779872711266.png";
 import waterImg from "../src/assets/images/water_dam_1779872733604.png";
+
+import { getGalleryImage } from "@/lib/gallery";
 
 // Types
 interface FocusArea {
@@ -70,6 +74,8 @@ interface GalleryItem {
   description: string;
   image: any;
   location: string;
+  type?: "image" | "video";
+  videoUrl?: string;
 }
 
 interface BlogPost {
@@ -82,6 +88,45 @@ interface BlogPost {
   coverImage: "soil" | "water" | "hero" | "edu" | "women" | string;
   summary: string;
   content: string;
+}
+
+function VideoPlayer({ url }: { url: string }) {
+  if (!url) return null;
+  const cleanUrl = url.trim();
+  
+  // Extract YouTube ID if it exists
+  let youtubeId = "";
+  if (cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be")) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = cleanUrl.match(regExp);
+    if (match && match[2].length === 11) {
+      youtubeId = match[2];
+    }
+  }
+
+  if (youtubeId) {
+    return (
+      <iframe
+        id="home-youtube-player"
+        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        className="w-full h-full object-cover bg-black"
+      />
+    );
+  }
+
+  return (
+    <video
+      id="home-html5-video-player"
+      src={cleanUrl}
+      controls
+      autoPlay
+      className="w-full h-full object-contain bg-black"
+    />
+  );
 }
 
 // Preloaded Gallery Databank
@@ -225,6 +270,7 @@ export default function NgoWebsite() {
   // --- Dynamic states for Gallery & Blog Sections ---
   const [galleryCategory, setGalleryCategory] = useState<string>("all");
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
+  const [dynamicGallery, setDynamicGallery] = useState<GalleryItem[]>([]);
   
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
@@ -250,6 +296,16 @@ export default function NgoWebsite() {
   const [blogFormCoverImage, setBlogFormCoverImage] = useState("soil");
   const [blogFormSummary, setBlogFormSummary] = useState("");
   const [blogFormContent, setBlogFormContent] = useState("");
+
+  // Gallery creation/editing states inside Admin Console
+  const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
+  const [galleryFormTitle, setGalleryFormTitle] = useState("");
+  const [galleryFormCategory, setGalleryFormCategory] = useState<string>("agriculture");
+  const [galleryFormDescription, setGalleryFormDescription] = useState("");
+  const [galleryFormLocation, setGalleryFormLocation] = useState("");
+  const [galleryFormType, setGalleryFormType] = useState<"image" | "video">("image");
+  const [galleryFormImage, setGalleryFormImage] = useState("soil");
+  const [galleryFormVideoUrl, setGalleryFormVideoUrl] = useState("");
 
   // Hydrate client databases cleanly on mount and avoid SSR issues
   useEffect(() => {
@@ -300,6 +356,30 @@ export default function NgoWebsite() {
             setDonationSubmissions(JSON.parse(storedPledges));
           } catch (e) {}
         }
+
+        // 4. Load Live Gallery dynamically
+        fetch("/api/gallery")
+          .then((res) => {
+            if (!res.ok) throw new Error("Server error, status: " + res.status);
+            return res.json();
+          })
+          .then((data) => {
+            if (Array.isArray(data)) {
+              setDynamicGallery(data);
+              localStorage.setItem("raitamitra_gallery", JSON.stringify(data));
+            }
+          })
+          .catch((err) => {
+            console.warn("Could not retrieve gallery from server:", err);
+            const storedGallery = localStorage.getItem("raitamitra_gallery");
+            if (storedGallery) {
+              try {
+                setDynamicGallery(JSON.parse(storedGallery));
+              } catch (e) {
+                setDynamicGallery([]);
+              }
+            }
+          });
       }, 0);
     }
   }, []);
@@ -309,6 +389,14 @@ export default function NgoWebsite() {
     setBlogs(updatedBlogs);
     if (typeof window !== "undefined") {
       localStorage.setItem("raitamitra_blogs", JSON.stringify(updatedBlogs));
+    }
+  };
+
+  // Sync gallery to localStorage when updated
+  const saveGalleryToSync = (updatedGallery: GalleryItem[]) => {
+    setDynamicGallery(updatedGallery);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("raitamitra_gallery", JSON.stringify(updatedGallery));
     }
   };
 
@@ -1009,50 +1097,66 @@ export default function NgoWebsite() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence mode="popLayout">
-              {defaultGallery
+              {(dynamicGallery.length > 0 ? dynamicGallery : defaultGallery)
                 .filter((item) => galleryCategory === "all" || item.category === galleryCategory)
-                .map((item) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    key={item.id}
-                    onClick={() => setSelectedGalleryItem(item)}
-                    className="cursor-pointer group relative bg-white border border-stone-200 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all h-[360px] flex flex-col justify-end"
-                  >
-                    <div className="absolute inset-0 z-0">
-                      <img
-                        src={item.image.src}
-                        alt={item.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent z-10" />
-                    </div>
+                .map((item) => {
+                  const resolvedImg = getGalleryImage(item.image);
+                  const imageSrc = resolvedImg && typeof resolvedImg === "object" && "src" in resolvedImg ? resolvedImg.src : resolvedImg;
+                  return (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      key={item.id}
+                      onClick={() => setSelectedGalleryItem(item)}
+                      className="cursor-pointer group relative bg-white border border-stone-200 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all h-[360px] flex flex-col justify-end"
+                    >
+                      <div className="absolute inset-0 z-0">
+                        <img
+                          src={imageSrc}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent z-10" />
+                        
+                        {/* Interactive Play Video Circle Overlay */}
+                        {item.type === "video" && (
+                          <div className="absolute inset-0 flex items-center justify-center z-15">
+                            <div className="bg-emerald-950/90 text-white p-4 rounded-full shadow-lg group-hover:scale-110 group-hover:bg-amber-450 group-hover:text-stone-950 transition-all border border-emerald-750/30">
+                              <Play className="w-5 h-5 fill-current ml-0.5" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="relative z-20 p-6 text-white space-y-2">
-                      <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">
-                        <span>{item.category}</span>
-                        <span className="flex items-center space-x-1">
-                          <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
-                          <span>{item.location}</span>
-                        </span>
+                      <div className="relative z-20 p-6 text-white space-y-2">
+                        <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">
+                          <span className="flex items-center space-x-1">
+                            {item.type === "video" && <Video className="w-3.5 h-3.5 mr-1 text-emerald-400 shrink-0" />}
+                            {item.category}
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                            <span>{item.location}</span>
+                          </span>
+                        </div>
+                        <h4 className="font-display text-base font-bold leading-tight group-hover:text-amber-300 transition-colors">
+                          {item.title}
+                        </h4>
+                        <p className="text-stone-300 text-[11px] leading-relaxed line-clamp-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                          {item.description}
+                        </p>
+                        <div className="pt-2 flex items-center text-xs font-bold text-amber-400 space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span>{item.type === "video" ? "Play Campaign Video" : "View Large Photograph"}</span>
+                          {item.type === "video" ? <Play className="w-3 h-3 fill-current" /> : <Eye className="w-3.5 h-3.5" />}
+                        </div>
                       </div>
-                      <h4 className="font-display text-base font-bold leading-tight group-hover:text-amber-300 transition-colors">
-                        {item.title}
-                      </h4>
-                      <p className="text-stone-300 text-[11px] leading-relaxed line-clamp-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                        {item.description}
-                      </p>
-                      <div className="pt-2 flex items-center text-xs font-bold text-amber-400 space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>View Large Photograph</span>
-                        <Eye className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
             </AnimatePresence>
           </div>
 
@@ -1935,13 +2039,20 @@ export default function NgoWebsite() {
             </button>
 
             <div className="grid grid-cols-1 md:grid-cols-12">
-              <div className="md:col-span-8 bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px]">
-                <img
-                  src={selectedGalleryItem.image.src}
-                  alt={selectedGalleryItem.title}
-                  className="max-h-[500px] max-w-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
+              <div className="md:col-span-8 bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px] relative">
+                {selectedGalleryItem.type === "video" ? (
+                  <VideoPlayer url={selectedGalleryItem.videoUrl || ""} />
+                ) : (
+                  <img
+                    src={(() => {
+                      const resolvedImg = getGalleryImage(selectedGalleryItem.image);
+                      return resolvedImg && typeof resolvedImg === "object" && "src" in resolvedImg ? resolvedImg.src : resolvedImg;
+                    })()}
+                    alt={selectedGalleryItem.title}
+                    className="max-h-[500px] max-w-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
               </div>
               <div className="md:col-span-4 p-6 sm:p-8 flex flex-col justify-between text-stone-200">
                 <div className="space-y-4">
@@ -2224,16 +2335,17 @@ export default function NgoWebsite() {
                   </div>
 
                   {/* Tab Navigation sub header */}
-                  <div className="flex border-b border-stone-200 gap-4">
+                  <div className="flex border-b border-stone-200 gap-4 overflow-x-auto shrink-0 scrollbar-none">
                     {[
-                      { id: "blogs", label: "Manage Blog Posts" },
-                      { id: "inquiries", label: `Contact Inquiries (${contactSubmissions.length})` },
-                      { id: "pledges", label: `Donation Pledges (${donationSubmissions.length})` }
+                      { id: "blogs", label: `📰 Manage Blog Posts (${blogs.length})` },
+                      { id: "gallery", label: `🖼️ Manage Gallery (${dynamicGallery.length > 0 ? dynamicGallery.length : defaultGallery.length})` },
+                      { id: "inquiries", label: `📥 Contact Inquiries (${contactSubmissions.length})` },
+                      { id: "pledges", label: `💳 Donation Pledges (${donationSubmissions.length})` }
                     ].map((tab) => (
                       <button
                         key={tab.id}
                         onClick={() => setAdminTab(tab.id)}
-                        className={`cursor-pointer text-xs font-bold pb-2 border-b-2 px-1 transition-all ${
+                        className={`cursor-pointer whitespace-nowrap text-xs font-bold pb-2 border-b-2 px-1 transition-all ${
                           adminTab === tab.id
                             ? "border-emerald-800 text-emerald-800"
                             : "border-transparent text-stone-500 hover:text-stone-800"
@@ -2250,7 +2362,7 @@ export default function NgoWebsite() {
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         
                         {/* Create/Edit form */}
-                        <div className="lg:col-span-12 xl:col-span-5 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
+                        <div className="lg:col-span-5 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
                           <h4 className="font-display font-bold text-sm uppercase tracking-wider font-mono text-emerald-800 flex items-center space-x-1">
                             {editingBlogId ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                             <span>{editingBlogId ? "Modify Blog Article" : "Compose New Article"}</span>
@@ -2378,8 +2490,15 @@ export default function NgoWebsite() {
                               <div>
                                 <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Cover Graphic Key</label>
                                 <select
-                                  value={blogFormCoverImage}
-                                  onChange={(e: any) => setBlogFormCoverImage(e.target.value)}
+                                  value={["soil", "water", "edu", "women", "hero"].includes(blogFormCoverImage) ? blogFormCoverImage : "custom"}
+                                  onChange={(e: any) => {
+                                    const val = e.target.value;
+                                    if (val === "custom") {
+                                      setBlogFormCoverImage("https://images.unsplash.com/photo-1592417817098-8f3d6fe1906a?w=800");
+                                    } else {
+                                      setBlogFormCoverImage(val);
+                                    }
+                                  }}
                                   className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900"
                                 >
                                   <option value="soil">Organic Soil Asset</option>
@@ -2387,9 +2506,24 @@ export default function NgoWebsite() {
                                   <option value="edu">Computer Lab Asset</option>
                                   <option value="women">Empowered Women Asset</option>
                                   <option value="hero">Green Fields Asset</option>
+                                  <option value="custom">Custom Image URL...</option>
                                 </select>
                               </div>
                             </div>
+
+                            {!["soil", "water", "edu", "women", "hero"].includes(blogFormCoverImage) && (
+                              <div className="mt-3">
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Custom Image URL</label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={blogFormCoverImage}
+                                  onChange={(e: any) => setBlogFormCoverImage(e.target.value)}
+                                  placeholder="https://images.unsplash.com/photo-..."
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 font-mono mt-1"
+                                />
+                              </div>
+                            )}
 
                             <div className="grid grid-cols-2 gap-3">
                               <div>
@@ -2484,7 +2618,7 @@ export default function NgoWebsite() {
                         </div>
 
                         {/* List of current blogs */}
-                        <div className="lg:col-span-12 xl:col-span-7 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
+                        <div className="lg:col-span-7 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
                           <h4 className="font-display font-bold text-stone-900 text-sm uppercase tracking-wider font-mono">
                             Live Registered Feed ({blogs.length} articles)
                           </h4>
@@ -2503,7 +2637,7 @@ export default function NgoWebsite() {
                                   <p className="text-[10px] text-stone-500 line-clamp-1">Author: {blog.author}</p>
                                 </div>
 
-                                <div className="flex space-x-1.5 shrink-0">
+                                <div className="flex flex-col sm:flex-row gap-2 shrink-0 self-center">
                                   <button
                                     onClick={() => {
                                       setEditingBlogId(blog.id);
@@ -2516,10 +2650,11 @@ export default function NgoWebsite() {
                                       setBlogFormSummary(blog.summary);
                                       setBlogFormContent(blog.content);
                                     }}
-                                    className="p-1.5 cursor-pointer bg-stone-50 hover:bg-emerald-50 text-stone-505 hover:text-emerald-800 border border-stone-200 hover:border-emerald-250 rounded"
+                                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 flex items-center justify-center gap-1 cursor-pointer transition-colors"
                                     title="Edit Article"
                                   >
-                                    <Edit className="w-3.5 h-3.5" />
+                                    <Edit className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Edit</span>
                                   </button>
                                   <button
                                     onClick={async () => {
@@ -2544,10 +2679,351 @@ export default function NgoWebsite() {
                                         }
                                       }
                                     }}
-                                    className="p-1.5 cursor-pointer bg-stone-50 hover:bg-red-50 text-stone-400 hover:text-red-700 border border-stone-200 hover:border-red-200 rounded"
+                                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center gap-1 cursor-pointer transition-colors"
                                     title="Delete Article"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Delete</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+                    )}
+
+                    {adminTab === "gallery" && (
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        
+                        {/* Gallery Item Form */}
+                        <div className="lg:col-span-5 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
+                          <h4 className="font-display font-bold text-sm uppercase tracking-wider font-mono text-emerald-800 flex items-center space-x-1">
+                            {editingGalleryId ? <Edit className="w-4 h-4 text-amber-500" /> : <Plus className="w-4 h-4" />}
+                            <span>{editingGalleryId ? "Modify Gallery Media" : "Add New Media Profile"}</span>
+                          </h4>
+
+                          <form
+                            onSubmit={async (e) => {
+                              e.preventDefault();
+                              if (!galleryFormTitle || !galleryFormDescription || !galleryFormLocation) {
+                                alert("Please write complete information across all required fields.");
+                                return;
+                              }
+
+                              const payloadItem: GalleryItem = {
+                                id: editingGalleryId || `gal-${Date.now()}`,
+                                title: galleryFormTitle,
+                                category: galleryFormCategory as any,
+                                description: galleryFormDescription,
+                                location: galleryFormLocation,
+                                type: galleryFormType,
+                                image: galleryFormImage,
+                                ...(galleryFormType === "video" ? { videoUrl: galleryFormVideoUrl } : {})
+                              };
+
+                              if (editingGalleryId) {
+                                // UPDATE (PUT)
+                                try {
+                                  const res = await fetch("/api/gallery", {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(payloadItem)
+                                  });
+                                  if (res.ok) {
+                                    const updated = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).map((g) => g.id === editingGalleryId ? payloadItem : g);
+                                    saveGalleryToSync(updated);
+                                    setEditingGalleryId(null);
+                                    // Reset form
+                                    setGalleryFormTitle("");
+                                    setGalleryFormDescription("");
+                                    setGalleryFormLocation("");
+                                    setGalleryFormType("image");
+                                    setGalleryFormImage("soil");
+                                    setGalleryFormVideoUrl("");
+                                  } else {
+                                    alert("Server rejected gallery update, updating locally.");
+                                    const updated = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).map((g) => g.id === editingGalleryId ? payloadItem : g);
+                                    saveGalleryToSync(updated);
+                                    setEditingGalleryId(null);
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to sync edited gallery item:", err);
+                                  alert("Failed to sync with server, updated locally.");
+                                  const updated = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).map((g) => g.id === editingGalleryId ? payloadItem : g);
+                                  saveGalleryToSync(updated);
+                                  setEditingGalleryId(null);
+                                }
+                              } else {
+                                // CREATE (POST)
+                                try {
+                                  const res = await fetch("/api/gallery", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(payloadItem)
+                                  });
+                                  if (res.ok) {
+                                    const currentGallery = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery);
+                                    const updated = [payloadItem, ...currentGallery];
+                                    saveGalleryToSync(updated);
+                                    // Reset form
+                                    setGalleryFormTitle("");
+                                    setGalleryFormDescription("");
+                                    setGalleryFormLocation("");
+                                    setGalleryFormType("image");
+                                    setGalleryFormImage("soil");
+                                    setGalleryFormVideoUrl("");
+                                  } else {
+                                    alert("Server rejected new gallery item, saving locally.");
+                                    const currentGallery = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery);
+                                    const updated = [payloadItem, ...currentGallery];
+                                    saveGalleryToSync(updated);
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to post new gallery item:", err);
+                                  alert("Failed to save to server, saved locally.");
+                                  const currentGallery = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery);
+                                  const updated = [payloadItem, ...currentGallery];
+                                  saveGalleryToSync(updated);
+                                }
+                              }
+                            }}
+                            className="space-y-3"
+                          >
+                            <div className="grid grid-cols-1 gap-3">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Media Dynamic Title *</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={galleryFormTitle}
+                                  onChange={(e) => setGalleryFormTitle(e.target.value)}
+                                  placeholder="E.g., Sustainable Drip Irrigation Demo"
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Category Focus *</label>
+                                <select
+                                  value={galleryFormCategory}
+                                  onChange={(e) => setGalleryFormCategory(e.target.value)}
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                >
+                                  <option value="agriculture">🌾 Agriculture Focus</option>
+                                  <option value="education">🤖 Rural Education</option>
+                                  <option value="women">👩🤝👩 Women SHG</option>
+                                  <option value="environment">🌱 Environment protection</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">District Location *</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={galleryFormLocation}
+                                  onChange={(e) => setGalleryFormLocation(e.target.value)}
+                                  placeholder="E.g., Hubli Rural, Dharwad"
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Media Dimension *</label>
+                                <select
+                                  value={galleryFormType}
+                                  onChange={(e: any) => setGalleryFormType(e.target.value)}
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 font-mono focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                >
+                                  <option value="image">Still Graphic (Image)</option>
+                                  <option value="video">Interactive Footage (Video)</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Thumbnail Asset</label>
+                                <select
+                                  value={["soil", "water", "edu", "women", "hero"].includes(galleryFormImage) ? galleryFormImage : "custom"}
+                                  onChange={(e: any) => {
+                                    const val = e.target.value;
+                                    if (val === "custom") {
+                                      setGalleryFormImage("https://images.unsplash.com/photo-1592417817098-8f3d6fe1906a?w=800");
+                                    } else {
+                                      setGalleryFormImage(val);
+                                    }
+                                  }}
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                >
+                                  <option value="soil">Organic Soil Asset</option>
+                                  <option value="water">Rainwater harvesting dam</option>
+                                  <option value="edu">Computer Lab Asset</option>
+                                  <option value="women">Empowered Women Asset</option>
+                                  <option value="hero">Green Fields Asset</option>
+                                  <option value="custom">Custom Image URL...</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {!["soil", "water", "edu", "women", "hero"].includes(galleryFormImage) && (
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Custom Image Thumbnail URL</label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={galleryFormImage}
+                                  onChange={(e) => setGalleryFormImage(e.target.value)}
+                                  placeholder="https://images.unsplash.com/photo-..."
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 font-mono focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                />
+                              </div>
+                            )}
+
+                            {galleryFormType === "video" && (
+                              <div>
+                                <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Video Link (YouTube/Direct video mp4 link) *</label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={galleryFormVideoUrl}
+                                  onChange={(e) => setGalleryFormVideoUrl(e.target.value)}
+                                  placeholder="https://www.youtube.com/watch?v=..."
+                                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 font-mono focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                                />
+                              </div>
+                            )}
+
+                            <div>
+                              <label className="block text-[9px] font-semibold text-stone-400 uppercase tracking-widest font-mono">Short Description Details *</label>
+                              <textarea
+                                required
+                                rows={3}
+                                value={galleryFormDescription}
+                                onChange={(e) => setGalleryFormDescription(e.target.value)}
+                                placeholder="Summary explanation shown when viewers explore the item..."
+                                className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-900 focus:ring-1 focus:ring-emerald-800 focus:outline-hidden"
+                              />
+                            </div>
+
+                            <div className="flex space-x-2.5 pt-1">
+                              <button
+                                type="submit"
+                                className="cursor-pointer flex-1 bg-emerald-800 hover:bg-emerald-950 text-white font-bold text-xs py-2.5 rounded-lg text-center transition-all shadow-xs"
+                              >
+                                {editingGalleryId ? "Save Media Tweaks" : "Upload to Live Gallery"}
+                              </button>
+                              {editingGalleryId && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingGalleryId(null);
+                                    setGalleryFormTitle("");
+                                    setGalleryFormDescription("");
+                                    setGalleryFormLocation("");
+                                    setGalleryFormType("image");
+                                    setGalleryFormImage("soil");
+                                    setGalleryFormVideoUrl("");
+                                  }}
+                                  className="cursor-pointer border border-stone-300 hover:bg-stone-55 text-stone-700 px-3 rounded-lg text-xs font-bold transition-all"
+                                >
+                                  Cancel Edit
+                                </button>
+                              )}
+                            </div>
+                          </form>
+                        </div>
+
+                        {/* Gallery Items List */}
+                        <div className="lg:col-span-7 bg-white border border-stone-200 rounded-3xl p-6 space-y-4">
+                          <h4 className="font-display font-bold text-stone-900 text-sm uppercase tracking-wider font-mono">
+                            Live Gallery Archive ({(dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).length} Items)
+                          </h4>
+
+                          <div className="divide-y divide-stone-100 max-h-[50vh] overflow-y-auto pr-2 space-y-3">
+                            {(dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).map((item) => (
+                              <div key={item.id} className="py-3 flex items-center justify-between gap-4 first:pt-0">
+                                <div className="flex items-center space-x-3 min-w-0">
+                                  {/* Small preview block */}
+                                  <div className="relative w-12 h-12 rounded-lg bg-stone-100 overflow-hidden border border-stone-200/60 shrink-0">
+                                    <img
+                                      src={
+                                        ["soil", "water", "edu", "women", "hero"].includes(item.image)
+                                          ? getCoverImageAsset(item.image).src
+                                          : item.image
+                                      }
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                    />
+                                    {item.type === "video" && (
+                                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                        <Play className="w-4 h-4 text-white" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="space-y-0.5 min-w-0">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-[9px] uppercase font-bold text-emerald-805 text-emerald-800 bg-emerald-50 px-1.5 rounded font-mono border border-emerald-100 py-0.5 whitespace-nowrap">
+                                        {item.category}
+                                      </span>
+                                      <span className="text-[9px] font-medium text-stone-400 font-mono truncate">{item.location}</span>
+                                    </div>
+                                    <p className="text-xs font-bold text-stone-900 leading-tight truncate">{item.title}</p>
+                                    <p className="text-[10px] text-stone-500 line-clamp-1">{item.description}</p>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                                  <button
+                                    onClick={() => {
+                                      setEditingGalleryId(item.id);
+                                      setGalleryFormTitle(item.title);
+                                      setGalleryFormCategory(item.category);
+                                      setGalleryFormDescription(item.description);
+                                      setGalleryFormLocation(item.location);
+                                      setGalleryFormType(item.type || "image");
+                                      setGalleryFormImage(item.image);
+                                      setGalleryFormVideoUrl(item.videoUrl || "");
+                                    }}
+                                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                                    title="Edit Gallery Item"
+                                  >
+                                    <Edit className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Edit</span>
+                                  </button>
+                                  <button
+                                    onClick={async () => {
+                                      if (confirm(`Do you wish to permanently remove the gallery item titled "${item.title}"?`)) {
+                                        try {
+                                          const res = await fetch(`/api/gallery?id=${item.id}`, {
+                                            method: "DELETE",
+                                          });
+                                          if (res.ok) {
+                                            const updated = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).filter((g) => g.id !== item.id);
+                                            saveGalleryToSync(updated);
+                                            if (editingGalleryId === item.id) setEditingGalleryId(null);
+                                          } else {
+                                            alert("Server rejected the deletion request.");
+                                          }
+                                        } catch (err) {
+                                          console.error("Failed to delete gallery item on server:", err);
+                                          alert("Failed to sync deletion with server. Deleting locally offline.");
+                                          const updated = (dynamicGallery.length > 0 ? dynamicGallery : defaultGallery).filter((g) => g.id !== item.id);
+                                          saveGalleryToSync(updated);
+                                          if (editingGalleryId === item.id) setEditingGalleryId(null);
+                                        }
+                                      }
+                                    }}
+                                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                                    title="Delete Gallery Item"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Delete</span>
                                   </button>
                                 </div>
                               </div>
