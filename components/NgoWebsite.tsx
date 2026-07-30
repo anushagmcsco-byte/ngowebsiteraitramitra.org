@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { RaitaMitraLogo } from "@/components/Logo";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Sprout,
@@ -680,34 +681,19 @@ export default function NgoWebsite() {
     <div className="min-h-screen flex flex-col selection:bg-emerald-600/20 selection:text-emerald-950">
       {/* Top Bar Logo & Navigation Navbar */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <a href="#hero" className="flex items-center space-x-3 group outline-hidden">
-            <div className="w-11 h-11 bg-emerald-50 rounded-lg flex items-center justify-center border border-emerald-100 transition-all group-hover:scale-105">
-              <Leaf className="w-6 h-6 text-emerald-700" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-1.5 leading-none">
-                <span className="font-display text-xl font-bold tracking-tight text-emerald-900">
-                  Raita Mitra
-                </span>
-                <span className="font-sans text-[10px] uppercase font-semibold tracking-wider text-amber-500 bg-amber-50 px-1 rounded-sm border border-amber-100">
-                  Social Trust
-                </span>
-              </div>
-              <span className="text-[10px] text-stone-500 font-mono tracking-tight block mt-0.5 leading-none">
-                Hubballi, Karnataka • Reg: 2021
-              </span>
-            </div>
-          </a>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+          <Link href="/" className="flex items-center group outline-hidden cursor-pointer hover:opacity-95 transition-opacity" title="RaitaMitra Social Trust Home">
+            <RaitaMitraLogo size="md" />
+          </Link>
 
           {/* Navigation Links for Desktop */}
           <nav className="hidden lg:flex items-center space-x-5 text-xs font-semibold uppercase tracking-wider text-stone-600">
             <Link href="/about" className="hover:text-emerald-700 transition-colors">About</Link>
             <a href="#focus-areas" className="hover:text-emerald-700 transition-colors">Our Focus</a>
-            <a href="#gallery" className="hover:text-emerald-700 transition-colors text-emerald-800 font-bold border-b-2 border-emerald-700 pb-0.5">Project Gallery</a>
-            <a href="#blog" className="hover:text-emerald-700 transition-colors text-emerald-800 font-bold border-b-2 border-emerald-700 pb-0.5">Trust Blog</a>
+            <a href="#gallery" className="hover:text-emerald-700 transition-colors text-emerald-800 font-bold border-b-2 border-emerald-700 pb-0.5">Gallery</a>
+            <a href="#blog" className="hover:text-emerald-700 transition-colors text-emerald-800 font-bold border-b-2 border-emerald-700 pb-0.5">Blog</a>
             <a href="#compliance" className="hover:text-emerald-700 transition-colors">Compliance</a>
-            <a href="#impact" className="hover:text-emerald-700 transition-colors">Impact & Pledge</a>
+            <a href="#impact" className="hover:text-emerald-700 transition-colors">Impact</a>
             <a href="#contact" className="hover:text-emerald-700 transition-colors">Contact</a>
             <button
               onClick={() => {

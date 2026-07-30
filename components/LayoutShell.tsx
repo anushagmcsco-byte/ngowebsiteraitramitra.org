@@ -23,6 +23,7 @@ import {
   Settings,
   ChevronRight
 } from "lucide-react";
+import { RaitaMitraLogo } from "@/components/Logo";
 import { defaultBlogs, BlogPost } from "@/lib/blogs";
 
 // Define the Shared Layout Context
@@ -257,13 +258,12 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   // Navbar link items
   const navLinks = [
-    { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Our Focus", href: "/our-focus" },
-    { name: "Project Gallery", href: "/gallery" },
-    { name: "Trust Blog", href: "/blog" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Blog", href: "/blog" },
     { name: "Compliance", href: "/compliance" },
-    { name: "Impact & Pledge", href: "/impact" },
+    { name: "Impact", href: "/impact" },
     { name: "Contact", href: "/contact" }
   ];
 
@@ -284,30 +284,15 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         
         {/* Consistent Top Nav Header */}
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
             
-            {/* Left Header Logo branding */}
-            <Link href="/" className="flex items-center space-x-3 group outline-hidden cursor-pointer">
-              <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center border border-emerald-100 transition-all group-hover:scale-105">
-                <Leaf className="w-5 h-5 text-emerald-700" />
-              </div>
-              <div className="text-left">
-                <div className="flex items-center space-x-1.5 leading-none">
-                  <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-emerald-950">
-                    Raita Mitra
-                  </span>
-                  <span className="font-sans text-[9px] uppercase font-bold tracking-wider text-amber-600 bg-amber-50 px-1 py-0.5 rounded-sm border border-amber-200">
-                    Social Trust
-                  </span>
-                </div>
-                <span className="text-[9px] text-stone-500 font-mono tracking-tight block mt-0.5 leading-none">
-                  Hubballi, Karnataka • Reg: 2021
-                </span>
-              </div>
+            {/* Left Header Logo branding with home link */}
+            <Link href="/" className="flex items-center group outline-hidden cursor-pointer py-0.5 hover:opacity-95 transition-opacity" title="RaitaMitra Social Trust - Home">
+              <RaitaMitraLogo size="md" />
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center space-x-4 xl:space-x-5 text-xs font-bold uppercase tracking-wider text-stone-600">
+            <nav className="hidden md:flex items-center space-x-2.5 lg:space-x-4 xl:space-x-5 text-[11px] lg:text-xs font-bold uppercase tracking-wider text-stone-600">
               {navLinks.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -329,7 +314,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
               {/* Trustee logout or login status */}
               {isAdminLoggedIn ? (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 shrink-0">
                   <span className="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
                     Admin Session Active
                   </span>
@@ -345,7 +330,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
                 <button
                   onClick={openAdminPortal}
                   style={{ paddingLeft: '8px', paddingRight: '8px' }}
-                  className="cursor-pointer inline-flex items-center space-x-1.5 underline text-[10px] text-emerald-950 bg-emerald-50 hover:bg-emerald-100 rounded-md py-1 border border-emerald-200 transition-all font-mono"
+                  className="cursor-pointer inline-flex items-center space-x-1.5 underline text-[10px] text-emerald-950 bg-emerald-50 hover:bg-emerald-100 rounded-md py-1 border border-emerald-200 transition-all font-mono shrink-0"
                 >
                   <Lock className="w-3 h-3 text-emerald-700 animate-pulse" />
                   <span>Trustee Portal</span>
@@ -354,7 +339,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
             </nav>
 
             {/* Mobile Navigation controls */}
-            <div className="flex items-center space-x-2 lg:hidden">
+            <div className="flex items-center space-x-2 md:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="cursor-pointer p-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-700 hover:bg-stone-100"
@@ -373,7 +358,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="lg:hidden border-t border-stone-200 bg-white shadow-lg overflow-hidden absolute left-0 right-0 top-full z-45"
+                className="md:hidden border-t border-stone-200 bg-white shadow-lg overflow-hidden absolute left-0 right-0 top-full z-45"
               >
                 <div className="p-4 space-y-3 flex flex-col text-sm font-semibold uppercase tracking-wider text-stone-750">
                   {navLinks.map((item) => {
@@ -440,10 +425,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
               
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Leaf className="w-5 h-5 text-emerald-500" />
-                  <span className="font-display text-lg font-bold text-white tracking-tight">Raita Mitra Social Trust</span>
-                </div>
+                <Link href="/" className="inline-block bg-white/95 p-2 rounded-xl shadow-xs border border-stone-800">
+                  <RaitaMitraLogo size="sm" />
+                </Link>
                 <p className="text-xs text-stone-500 leading-relaxed max-w-sm">
                   Registered non-profit public charitable trust under the Indian Trusts Act, 1882 working proactively to improve rural livelihoods across Karnataka.
                 </p>
