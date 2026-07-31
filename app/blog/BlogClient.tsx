@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useLayout } from "@/components/LayoutShell";
 import { getCoverImageAsset, BlogPost } from "@/lib/blogs";
+import eduImg from "../../src/assets/images/rural_digital_education_1779872087959.png";
 
 export default function BlogIndexPage() {
   const { blogs, refreshBlogsFromServer, isAdminLoggedIn, openAdminPortal } = useLayout();
@@ -156,17 +157,35 @@ export default function BlogIndexPage() {
     <div className="min-h-screen bg-stone-50 pb-24 text-stone-900">
       
       {/* Dynamic Title Header Banner */}
-      <section className="bg-emerald-950 text-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 to-emerald-900/40" />
+      <section className="bg-emerald-950 text-white py-16 sm:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src={eduImg}
+            alt="Raita Mitra Social Trust Rural Education and Field Press"
+            fill
+            className="object-cover object-center"
+            priority
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-500 bg-amber-450/10 px-3 py-1 rounded-full border border-amber-400/20">
-              Trust Press & Operations Feed
+            {/* Breadcrumbs */}
+            <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-2">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <span>/</span>
+              <span className="text-amber-400 font-bold">Blog</span>
+            </nav>
+
+            <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>Trust Press & Operations Feed</span>
             </span>
             <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight">
               Trust Editorial Blog
             </h1>
-            <p className="text-emerald-250/80 text-xs sm:text-sm max-w-2xl leading-relaxed">
+            <p className="text-emerald-200/90 text-xs sm:text-sm max-w-2xl leading-relaxed">
               Read scientific farming guides, AI technology bootcamps insights, and operational updates direct from the headquarters of Raita Mitra Social Trust in Hubballi.
             </p>
           </div>

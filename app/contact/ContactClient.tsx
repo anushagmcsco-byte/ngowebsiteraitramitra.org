@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import heroImg from "../../src/assets/images/karnataka_farmer_hero_1779872061305.png";
 import {
   MapPin,
   Mail,
@@ -97,16 +100,34 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-905 pb-24">
       {/* Title Header Banner */}
-      <section className="bg-emerald-950 text-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 to-emerald-900/40" />
+      <section className="bg-emerald-950 text-white py-16 sm:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src={heroImg}
+            alt="Raita Mitra Social Trust Hubballi Coordination Office and Farmers"
+            fill
+            className="object-cover object-center"
+            priority
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-450/10 px-3 py-1 rounded-full border border-amber-400/20">
-            Reach Out
+          {/* Breadcrumbs */}
+          <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-4">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-amber-400 font-bold">Contact</span>
+          </nav>
+
+          <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+            <MapPin className="w-3.5 h-3.5 text-amber-400" />
+            <span>Reach Out to Our Trustees</span>
           </span>
           <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight mt-3">
             Contact Hubballi Headquarters
           </h1>
-          <p className="text-emerald-205/80 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
+          <p className="text-emerald-200/90 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
             Have questions about organic programs, digital educational booths, or 80G tax exemptions? Send an enquiry message or connect directly using our official details below.
           </p>
         </div>

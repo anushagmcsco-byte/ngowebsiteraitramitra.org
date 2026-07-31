@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -20,6 +21,7 @@ import { useLayout } from "@/components/LayoutShell";
 import heroImg from "../../src/assets/images/karnataka_farmer_hero_1779872061305.png";
 import eduImg from "../../src/assets/images/rural_digital_education_1779872087959.png";
 import womenImg from "../../src/assets/images/women_empowerment_1779872106993.png";
+import soilImg from "../../src/assets/images/soil_workshop_1779872711266.png";
 
 export default function OurFocusPage() {
   const { openDonateModal } = useLayout();
@@ -118,17 +120,35 @@ export default function OurFocusPage() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 pb-24">
       {/* Editorial Title Header */}
-      <section className="bg-emerald-950 text-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 to-emerald-900/40" />
+      <section className="bg-emerald-950 text-white py-16 sm:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src={soilImg}
+            alt="Soil Testing Workshop and Agricultural Focus"
+            fill
+            className="object-cover object-center"
+            priority
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-450/10 px-3 py-1 rounded-full border border-amber-400/20">
-            Pillars of Activity
+          {/* Breadcrumbs */}
+          <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-4">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-amber-400 font-bold">Our Focus</span>
+          </nav>
+
+          <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+            <Sprout className="w-3.5 h-3.5 text-amber-400" />
+            <span>Pillars of Activity</span>
           </span>
           <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight mt-3">
             Primary Focus Areas
           </h1>
-          <p className="text-emerald-200/80 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
-            Raita Mitra Social Trust coordinate high-relevance operations from organic soil diagnostics to computational intelligence classes for government public schools. Use the interaction tags below to explore our core work.
+          <p className="text-emerald-200/90 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
+            Raita Mitra Social Trust coordinates high-relevance operations from organic soil diagnostics to computational intelligence classes for government public schools. Use the interaction tags below to explore our core work.
           </p>
         </div>
       </section>

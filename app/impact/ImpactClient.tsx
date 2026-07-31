@@ -1,6 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import womenImg from "../../src/assets/images/women_empowerment_1779872106993.png";
 import { motion } from "motion/react";
 import {
   Sparkles,
@@ -61,16 +64,34 @@ export default function ImpactPage() {
     <div className="min-h-screen bg-stone-50 text-stone-900 pb-24">
       
       {/* Title Header Banner */}
-      <section className="bg-emerald-950 text-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 to-emerald-900/40" />
+      <section className="bg-emerald-950 text-white py-16 sm:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src={womenImg}
+            alt="Raita Mitra Community Social Impact and Women SHG Empowerment"
+            fill
+            className="object-cover object-center"
+            priority
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-450/10 px-3 py-1 rounded-full border border-amber-400/20">
-            Social Return Simulator
+          {/* Breadcrumbs */}
+          <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-4">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-amber-400 font-bold">Impact</span>
+          </nav>
+
+          <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+            <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+            <span>Social Return Simulator</span>
           </span>
           <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight mt-3">
-            Impact Pricing Calculator
+            Impact Calculator & Pledge
           </h1>
-          <p className="text-emerald-205/80 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
+          <p className="text-emerald-200/90 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
             Move the interactive slider or click any of our quick preset cards below to simulate the exact, physical impact of your gift. Calculate tax benefits immediately.
           </p>
         </div>

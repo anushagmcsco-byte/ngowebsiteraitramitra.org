@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { useLayout } from "@/components/LayoutShell";
 import { GalleryItem, getGalleryImage } from "@/lib/gallery";
+import eduImg from "../../src/assets/images/rural_digital_education_1779872087959.png";
 
 function VideoPlayer({ url }: { url: string }) {
   if (!url) return null;
@@ -334,18 +336,36 @@ export default function GalleryPage() {
     <div id="gallery-root-container" className="min-h-screen bg-stone-50 text-stone-900 pb-24">
       
       {/* Title Header Banner */}
-      <section id="gallery-header-banner" className="bg-emerald-950 text-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 to-emerald-900/40" />
+      <section id="gallery-header-banner" className="bg-emerald-950 text-white py-16 sm:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src={eduImg}
+            alt="Field Project Media and Education Gallery"
+            fill
+            className="object-cover object-center"
+            priority
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-                Visual Footprints
+              {/* Breadcrumbs */}
+              <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-4">
+                <Link href="/" className="hover:text-white transition-colors">Home</Link>
+                <span>/</span>
+                <span className="text-amber-400 font-bold">Gallery</span>
+              </nav>
+
+              <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                <span>Visual Footprints</span>
               </span>
               <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight mt-3">
-                Our Project Gallery
+                Project Gallery
               </h1>
-              <p className="text-emerald-200/80 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
+              <p className="text-emerald-200/90 text-xs sm:text-sm mt-3 max-w-2xl leading-relaxed">
                 Real-world project updates from rural Karnataka coordinator offices. Each picture portrays local farmers, youth, and cooperatives actively receiving educational and material aid.
               </p>
             </div>

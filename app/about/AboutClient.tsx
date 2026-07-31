@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import {
@@ -72,28 +73,52 @@ export default function AboutPage() {
       
       {/* Hero Header Banner */}
       <section className="bg-emerald-950 text-white relative py-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-30">
           <Image
-            src={heroImg}
-            alt="Lush green fields of Hubballi, Karnataka"
+            src={teamMeetingImg}
+            alt="Raita Mitra Social Trust Board Members and Governance Meeting"
             fill
-            className="object-cover"
+            className="object-cover object-center"
             priority
             referrerPolicy="no-referrer"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/70" />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center lg:text-left">
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-            About Our Institution
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Breadcrumb Links */}
+          <nav className="flex items-center space-x-2 text-xs text-emerald-300/80 font-mono mb-4">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-amber-400 font-bold">About Us</span>
+          </nav>
+
+          <span className="inline-flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+            <Building className="w-3 h-3 text-amber-400" />
+            <span>About Our Institution</span>
           </span>
+          
           <h1 className="font-display text-3xl sm:text-5xl font-black tracking-tight mt-4 max-w-4xl leading-tight">
             Uplifting Rural Lives, Fostering Autonomy
           </h1>
-          <p className="text-emerald-200/80 text-sm sm:text-base mt-4 max-w-2xl leading-relaxed font-medium">
+          <p className="text-emerald-200/90 text-sm sm:text-base mt-4 max-w-2xl leading-relaxed font-medium">
             Raita Mitra Social Trust is a registered public charitable institution. We work closely alongside smallholder farmers and marginalized households across Karnataka to make agricultural topsoils, computer skills, and women micro-credit structures sustainable.
           </p>
+
+          <div className="flex flex-wrap items-center gap-4 mt-6 pt-6 border-t border-emerald-800/60 text-xs font-mono text-emerald-300">
+            <span className="flex items-center space-x-1.5 bg-emerald-900/60 px-3 py-1.5 rounded-md border border-emerald-800/80">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Reg No: HBL-4-00006-2021-22</span>
+            </span>
+            <span className="flex items-center space-x-1.5 bg-emerald-900/60 px-3 py-1.5 rounded-md border border-emerald-800/80">
+              <Award className="w-4 h-4 text-amber-400" />
+              <span>80G & 12A Certified</span>
+            </span>
+            <span className="flex items-center space-x-1.5 bg-emerald-900/60 px-3 py-1.5 rounded-md border border-emerald-800/80">
+              <MapPin className="w-4 h-4 text-emerald-400" />
+              <span>Hubballi, Karnataka</span>
+            </span>
+          </div>
         </div>
       </section>
 
